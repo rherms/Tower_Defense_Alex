@@ -16,3 +16,7 @@ function loseLife()
 	lives = lives-1
 	livesDisplay.text = "Lives: " .. lives
 end
+
+function displayTowerMenu()
+	widget.newPanel();
+end

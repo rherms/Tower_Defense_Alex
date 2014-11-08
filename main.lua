@@ -1,15 +1,17 @@
 --@see http://lua-users.org/wiki/MathLibraryTutorial
 --require "sprite"
+widget = require("widget")
 require ("inc.utils")
 require ("inc.player")
 require ("inc.tower")
 require ("inc.bullet")
 require ("inc.enemy")
 require ("inc.gamemap")
+require ("inc.newPanel")
 math.randomseed( os.time() )
 
 local map = {}
-map[1] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+map[1] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,1}
 map[2] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 map[3] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 map[4] = {1,1,1,1,1,1,1,1,1,1,1,2,0,0,0}
@@ -29,6 +31,9 @@ fps = 30
 --background
 local bg = display.newRect(center_x, center_y, 960, 640)
 GameMap:drawMap()
+
+--Create tower button
+local towerButton = widget.newButton( {x = _W - 32, y = 32, width = 80, height = 80, defaultFile = "img/towerbutton.png", onEvent = displayTowerMenu})
 
 scoreDisplay = display.newText(score, 0, _H-60, native.systemFontBold, 48)
 scoreDisplay.anchorX = 0
