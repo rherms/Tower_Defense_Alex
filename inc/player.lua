@@ -15,7 +15,12 @@ function resumeGame(event)
 	if paused then --just in case
 		pauseOrPlayGame()
 	end
-	if event.target.type == "unlock" then
+	if event == "info" or event.target.type == "info" then
+		sellButton:removeSelf()
+		sellPrice:removeSelf()
+		upgradeButton:removeSelf()
+		upgradedStat:removeSelf()
+	elseif event.target.type == "unlock" then
 		spawnNextWave()
 	end
 end

@@ -2,20 +2,17 @@ newTower = {}
 
 local function sellTower(event)
 	local t = towers[event.target.index]
-	t.sold = true
 	--table.remove(towers, t.index)
+	t.sold = true
 	updateMoney(t.cost / 2 + (t.level - 1) * 25)
 	t.shootRangeObject:removeSelf()
-	t.sellButton.isVisible = false
-	t.sellPrice.isVisible = false
-	t.upgradeButton.isVisible = false
-	t.upgradedStat.isVisible = false
-	t.infoButton.isVisible = false
 	local tile_x = math.floor(t.x/64) 
 	local tile_y = math.floor(t.y/64)
 	map[tile_y + 1][tile_x + 1] = 0
+	t.infoButton:removeSelf()
 	t:removeSelf()
 	Runtime:removeEventListener('enterFrame', t)
+	resumeGame("info")
 end
 
 local function upgradeTower(event)
@@ -32,28 +29,18 @@ local function upgradeTower(event)
 				t.shootRangeObject = display.newCircle( t.x, t.y, t.shootRange )
 				t.shootRangeObject:setFillColor(1, 0, 0, 20/255)
 				globalSceneGroup:insert(t.shootRangeObject)
-				t.upgradedStat.text = "$".. cost .. " for Level " .. t.level + 1 .. ": " .. t.upgrades[t.level]
-				t.sellPrice.text = "$".. t.cost / 2 + (t.level - 1) * 25
 			elseif t.level == 3 then
 				t.damage = t.damage + 20
-				t.upgradedStat.text = "$".. cost .. " for Level " .. t.level + 1 .. ": " .. t.upgrades[t.level]
-				t.sellPrice.text = "$".. t.cost / 2 + (t.level - 1) * 25
 			elseif t.level == 4 then
 				t.shootRate = t.shootRate + 0.5
-				t.upgradedStat.text = "$".. cost .. " for Level " .. t.level + 1 .. ": " .. t.upgrades[t.level]
-				t.sellPrice.text = "$".. t.cost / 2 + (t.level - 1) * 25
+				t.shootSleepMax = 30 / t.shootRate
 			elseif t.level == 5 then
 				t.damage = t.damage + 30
-				t.upgradedStat.text = "Fully Upgraded"
-				t.sellPrice.text = "$".. t.cost / 2 + (t.level - 1) * 25
 			end
-			t.sellButton.isVisible = false
-			t.sellPrice.isVisible = false
-			t.upgradeButton.isVisible = false
-			t.upgradedStat.isVisible = false
 			t.infoButton.isVisible = false
 			t.pressed = not t.pressed
 			t.shootRangeObject.isVisible = not t.shootRangeObject.isVisible
+			resumeGame("info")
 		end
 	end
 end
@@ -81,49 +68,46 @@ local function showTowerInfo(event)
 		message = message .. "\nShoot Style: Single Shot"
 		message = message .. "\nWeapon: Cannonballs"
 		message = message .. "\nEra: Medieval"
-		rect = display.newRect(center_x, center_y, _W - 480, _H - 320)
+		rect = display.newRoundedRect(center_x, center_y, _W - 360, _H - 240, 24)
 		rect:setFillColor(0, 0, 1)
-		text = display.newText(message, center_x, center_y, native.systemFont, 20)
+		text = display.newText(message, center_x, center_y - 40, native.systemFont, 24)
 		--text:setFillColor( 0.5, 1, 0.2 )
-		button = widget.newButton( {shape = "roundedRect", labelColor = {default = {0, 0, 0, 1}, over = {0, 0, 0, 1}}, fillColor = {default = {1, 0, 0, 1}, over = {1, 0, 0, 0.5}}, x = center_x, y = _H - 100, onRelease = resumeGame, label = "Close", width = 150, height = 75, fontSize = 26} )
+		button = widget.newButton( {shape = "roundedRect", labelColor = {default = {0, 0, 0, 1}, over = {0, 0, 0, 1}}, fillColor = {default = {1, 0, 0, 1}, over = {1, 0, 0, 0.5}}, x = center_x, y = _H - 60, onRelease = resumeGame, label = "Close", width = 150, height = 75, fontSize = 26} )
 		button.type = "info"
+		sellButton = widget.newButton({defaultFile = "img/sellButton.png", overFile = "img/sellButtonOver.png", width = 48, height = 48, x = rect.x + rect.width / 2 - 24, y = rect.y - rect.height / 2 + 24, onRelease = sellTower})
+		sellButton.index = event.target.index
+		sellLength = string.len(tostring(t.cost / 2 + (t.level - 1) * 25)) + 1 --so we can scale the x position of the sell price (+1 for $)		
+		sellPrice = display.newText("$" .. t.cost / 2 + (t.level - 1) * 25, sellButton.x - 24 - sellLength * 8, sellButton.y, native.systemFontBold, 24)
+		upgradeButton = widget.newButton({defaultFile = "img/upgradeButton.png", overFile = "img/upgradeButtonOver.png", width = 48, height = 48, x = rect.x - rect.width / 2 + 24, y = rect.y + rect.height / 2 - 24, onRelease = upgradeTower })
+		upgradeButton.index = event.target.index
+		if t.level < 5 then
+			upgradedStat = display.newText("$".. 25 + 25 * t.level .. " for Level " .. t.level + 1 .. ": " .. t.upgrades[t.level], upgradeButton.x + 24, upgradeButton.y, native.systemFontBold, 24)
+			upgradedStat.anchorX = 0
+		else
+			upgradedStat = display.newText("Fully Upgraded", upgradeButton.x + 24, upgradeButton.y, native.systemFontBold, 24)
+			upgradedStat.anchorX = 0
+		end
 		updateShopButtons(false)
 	end
 end
 
 local function showTowerOptions(event)
 	--toFront, add to scene group
-	local t = event.target
-	t.pressed = not t.pressed
-	t.shootRangeObject.isVisible = not t.shootRangeObject.isVisible
-	if t.first then
-		t.sellButton = widget.newButton({defaultFile = "img/sellButton.png", overFile = "img/sellButtonOver.png", x = t.x, y = t.y + 64, onRelease = sellTower})
-		t.sellButton.index = t.index
-		t.sellPrice = display.newText("$" .. t.cost / 2 + (t.level - 1) * 25, t.sellButton.x, t.y + 32, native.systemFontBold, 24)
-		t.upgradeButton = widget.newButton({defaultFile = "img/upgradeButton.png", overFile = "img/upgradeButtonOver.png", x = t.x, y = t.y - 64, onRelease = upgradeTower })
-		t.upgradeButton.index = t.index
-		t.upgradedStat = display.newText("$".. 25 + 25 * t.level .. " for Level " .. t.level + 1 .. ": " .. t.upgrades[t.level], t.upgradeButton.x, t.upgradeButton.y + 32, native.systemFontBold, 24)
-		t.infoButton = widget.newButton({defaultFile = "img/infoButton.png", overFile = "img/infoButton.png", x = t.x + 32, y = t.y, onRelease = showTowerInfo})
-		t.infoButton.index = t.index
-		globalSceneGroup:insert(t.infoButton)
-		globalSceneGroup:insert(t.sellButton)
-		globalSceneGroup:insert(t.sellPrice)
-		globalSceneGroup:insert(t.upgradeButton)
-		globalSceneGroup:insert(t.upgradedStat)
-		t.first = false
-	end
-	if t.pressed then
-		t.sellButton.isVisible = true
-		t.sellPrice.isVisible = true
-		t.upgradeButton.isVisible = true
-		t.upgradedStat.isVisible = true
-		t.infoButton.isVisible = true
-	elseif not t.pressed then
-		t.sellButton.isVisible = false
-		t.sellPrice.isVisible = false
-		t.upgradeButton.isVisible = false
-		t.upgradedStat.isVisible = false
-		t.infoButton.isVisible = false
+	if not displayingMessage then
+		local t = event.target
+		t.pressed = not t.pressed
+		t.shootRangeObject.isVisible = not t.shootRangeObject.isVisible
+		if t.first then
+			t.infoButton = widget.newButton({defaultFile = "img/infoButton.png", overFile = "img/infoButton.png", x = t.x + 24, y = t.y, onRelease = showTowerInfo})
+			t.infoButton.index = t.index
+			globalSceneGroup:insert(t.infoButton)
+			t.first = false
+		end
+		if t.pressed then
+			t.infoButton.isVisible = true
+		elseif not t.pressed then
+			t.infoButton.isVisible = false
+		end
 	end
 end
 
@@ -163,10 +147,6 @@ function newTower:new(params)
 	function tower:enterFrame(e)
 		if not paused then 
 			if not self.first then
-				self.sellButton:toFront()
-				self.sellPrice:toFront()
-				self.upgradeButton:toFront()
-				self.upgradedStat:toFront()
 				--still want shop to go over this stuff
 				sendShopToFront()
 			end

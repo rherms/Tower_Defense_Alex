@@ -168,9 +168,7 @@ function GameMap:drawMap()
         map[10] = {8, 0, 0, 0, 0, 0, 1, 0,3, 0, 0, 0, 0, 0, 1}
         map.startValues = {{-32, 64 * 4, 1, 0}, {_W, 64 * 4, -1, 0}}
     end
-    --put boulders under the buttons so they can't place towers on the buttons
-    map[10][15] = 13
-    map[1][15] = 13
+    
 	for i = 1, #map do
     	for j = 1, #map[1] do
             local image = {}
@@ -210,6 +208,16 @@ function GameMap:drawMap()
             imageMap[i][j] = image
     	end
 	end
+
+    --put boulders under the buttons so they can't place towers on the buttons
+    map[10][15] = 13
+    map[1][15] = 13
+    map[1][1] = 13  
+    map[1][2] = 13
+    map[1][7] = 13
+    map[1][8] = 13
+    map[1][9] = 13
+
 	arrows = {}
     for i = 1, #map.startValues do
         local arr = map.startValues[i]
