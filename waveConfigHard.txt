@@ -1,0 +1,30 @@
+2 
+1
+1
+6
+30
+100
+1
+5 
+5 
+1 1 2 2 3 
+1 2 3 4 5
+1000 1000 800 800 800 
+1 1 2 2 3
+
+Total Waves
+Each wave has:
+# of Columns
+Towers Unlocked
+List of Type of enemy
+List of Enemies in each set
+List of Spawn rate (in ms)
+List of Sets
+
+Enemy Types:
+1 - dinosaur
+2 - tribal tiger
+3 - knight
+4 - tank
+5 - Robot
+6 - Mothership

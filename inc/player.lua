@@ -1,7 +1,7 @@
 require("inc.newPanel")
 score = 0
-money = 10000
-lives = 10
+money = 150
+lives = 50
 shopDisplayed = false
 text = nil
 button = nil
@@ -29,6 +29,7 @@ function updateShopButtons(param)
 	for key, val in pairs(towerButtons) do
 		val.isVisible = param
 		val.infoButton.isVisible = param
+		val.costLabel.isVisible = param
 	end
 end
 
@@ -90,11 +91,13 @@ function updateShop()
 	end--]]
 end
 
-function updateBoolAndMap() --modify this for each tower added. this is called by onComplete for the sliding widget
+function updateBoolAndMap() --this is called by onComplete for the sliding widget
 	if shopDisplayed then 
 		updateShopButtons(false)
+		shopTitle.isVisible = false
 	else
 		updateShopButtons(true)
+		shopTitle.isVisible = true
 	end
 	shopDisplayed = not shopDisplayed
 	updateShop()
@@ -117,8 +120,8 @@ end
 
 function resetVariables()
 	score = 0
-	money = 10000
-	lives = 10
+	money = 150
+	lives = 50
 	shopDisplayed = false
 	paused = false
 	displayingMessage = false

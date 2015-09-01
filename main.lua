@@ -7,7 +7,7 @@ center_y = _H / 2
 levelsUnlocked = 9
 levelSelected = 1
 paused = false
-difficulty = 0 --0 is easy, 1 is normal, 2 is hard
+difficulty = 1 --0 is easy, 1 is normal, 2 is hard
 
 composer = require "composer"
 composer.recycleOnSceneChange = true
